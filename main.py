@@ -4,6 +4,7 @@ import sys
 
 import Funciones as fn
 
+from os import remove
 from formArchivos import *
 from SistemaArchivos import InfoArchivo
 ##from EntidadesModulo import Persona
@@ -166,9 +167,13 @@ class FrmUsuario(QtWidgets.QDialog):
         filaSelect = self.seleccionarArchivo()
         fila = filaSelect[0].row()
         
+        #convierto la ruta a txt
+        nombreRuta = self.ui.tw_Mostrar.item(fila,1).text() 
+       
         if filaSelect:        
             self.ui.tw_Mostrar.removeRow(fila)
             self.fila -=1
+            remove(nombreRuta)
             self.msgProceso()
         else:
             msg = QtWidgets.QMessageBox(self)
