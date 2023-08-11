@@ -94,8 +94,7 @@ class FrmUsuario(QtWidgets.QDialog):
 #########################################################################################
     #Buscar Archivo
     def buscarArch(self):
-        fn.listaRutaArchivo .clear()
-        self.ui.tw_Mostrar.clearContents()
+        self.limpiarTabla()
         nombreArch= self.ui.NombreBuscar.text()
         ruta = self.ui.RutaBuscar.text()
         lambda:self.ui.tw_Mostrar.setShowGrid(False).clear()
@@ -128,7 +127,22 @@ class FrmUsuario(QtWidgets.QDialog):
                 
         self.inicializarControles()
 
-       
+#########################################################################################
+    #Elimina una fila y documento
+    def eliminarFila(self):
+        filaSeleccionada = self.tabla.selectedItems()
+
+        if filaSeleccionada:
+            fila = filaSeleccionada[0].row()
+            self.ui.tw_Mostrar.removeRow(fila)
+
+            self.ui.tw_Mostrar.clearSelection()
+
+#########################################################################################
+    #Limpia la tabla para volver a ingresar datos       
+    def limpiarTabla(self):
+        self.ui.tw_Mostrar.clearContents()
+        self.ui.tw_Mostrar.setRowCount(0)
 
 #########################################################################################
 
