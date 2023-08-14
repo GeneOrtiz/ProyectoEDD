@@ -249,6 +249,23 @@ class FrmUsuario(QtWidgets.QDialog):
             print(oE.strerror)
         except BaseException:
             archivo.close()
+            
+   # Reporte de inventario de documentos y rutas 
+    def generar_reporte(documentos):
+        try:
+            archivo_informe = open("informe_inventario.txt", "w")
+            archivo_informe.write("Informe de inventario \n\n")
+            
+            for documento in documentos:
+                nombre, ruta = documento
+                archivo_informe.write(f"Nombre del Docuemnto: {nombre}\n")
+                archivo_informe.write(f"Ruta del Documento: {ruta}\n\n")
+                
+            archivo_informe.close()
+            print("Informe de inventario generado exitosamente")
+        
+        except Exception  as e:
+            print("Ocurrio un error al generar el informe de inventario ", str(e))
 
     
     
