@@ -80,7 +80,7 @@ class FrmUsuario(QtWidgets.QDialog):
                     add= ruta.replace("\\", "\\\\")
                     print (add)
 
-                    archivo = open(os.path.join(add,nombreArch+formato),'w')#no agremos direccion para que se cree donde esta el proyexto   
+                    archivo = open(os.path.join(add,nombreArch+formato),'a')#no agremos direccion para que se cree donde esta el proyexto   
                     archivo.write(self.ui.txtEscribir.toPlainText()+"\r")  ##lo dejmaos en limpio  
                     archivo.close()
                     self.ui.NombreArchivo.clear()
@@ -225,8 +225,8 @@ class FrmUsuario(QtWidgets.QDialog):
         nombreArch = self.ui.NombreArchivo.text()
         ruta = self.ui.DireccionCarpeta.text()
  
-        archivo = open(ruta,nombreArch + formato,"a")
-        texto = archivo.write(self.ui.txtEscribir.toPlainText() + "\r")
+        archivo = open(ruta,"w")
+        archivo.write(self.ui.txtEscribir.toPlainText() + "\w")
         archivo.close()
         self.ui.txtEscribir.clear()
         
