@@ -32,6 +32,7 @@ class FrmUsuario(QtWidgets.QDialog):
         self.ui.btn_Eliminar.clicked.connect(self.eliminarArchivo)
         self.ui.btn_Modificar.clicked.connect(self.modificarArchivo)
         self.ui.btn_Proteger.clicked.connect(self.protegerArchivo)
+        self.ui.btn_Proteger.clicked.connect(self.generar_reporte)
         
     #incializa lo nesecesario 
     def inicializarControles(self):
