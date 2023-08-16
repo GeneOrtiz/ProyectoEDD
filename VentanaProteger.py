@@ -13,16 +13,18 @@ class VentanaProteger(QtWidgets.QDialog):
     #Indica si las claves son correctas para desbloquerlo
     desbloquear = False
 
-    def __init__(self,ruta):
+    def __init__(self,ruta,archivo):
         super().__init__()
         self.ui = Ui_ventana()
         self.objPersona = None
         self.ruta = ruta
+        self.archivo = archivo
 
         self.ui.setupUi(self)
         self.inicializarControles() #se inicia con una condicion
         
-        self.ui.txt_Archivo.setText(self.ruta)  
+        self.ui.txt_Ruta.setText(self.ruta)
+        self.ui.txt_Archivo.setText(self.archivo)  
         self.ui.btn_Aceptar.clicked.connect(self.verificar)
         self.ui.btn_cancelar.clicked.connect(self.cerrar)
         
@@ -41,11 +43,10 @@ class VentanaProteger(QtWidgets.QDialog):
         
         for i in linea:
             rut, password = i.strip().split(',')
-            print (self.ruta + " " + clave)
-            print (rut + " " + password)
             if (self.ruta == rut):
                 if(clave == password):
                     self.desbloquear = True
+                    self.close()
                 else:
                     msg = QtWidgets.QMessageBox(self)  
                     msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)      
@@ -53,9 +54,10 @@ class VentanaProteger(QtWidgets.QDialog):
                     msg.setWindowTitle("Contraseña")        
                     msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)        
                     a = msg.exec()
+                    msg.close()
       
         archivo.close()
-        self.close()
+        
         
     def cerrar(self):
         self.close()
@@ -64,7 +66,7 @@ class VentanaProteger(QtWidgets.QDialog):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)    
-    ventana = VentanaProteger('')        
+    ventana = VentanaProteger('','')        
     ventana.show()
     sys.exit(app.exec())
     

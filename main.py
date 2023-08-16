@@ -48,10 +48,9 @@ class FrmUsuario(QtWidgets.QDialog):
     def guardarArch(self):
         nombreArch= self.ui.NombreArchivo.text()
         ruta = self.ui.DireccionCarpeta.text()
-        formato = self.ui.Formato.text()
+        formato = '.txt'
         
-        
-        
+ 
         if nombreArch == "": 
             print("campo vacio")
             msg = QtWidgets.QMessageBox(self)  
@@ -138,19 +137,14 @@ class FrmUsuario(QtWidgets.QDialog):
                 print(etiqueta.format(archivo.NomArchivo,archivo.Ruta))
                 self.ui.tw_Mostrar.setItem(self.fila,0,celdaArchivo)
                 self.ui.tw_Mostrar.setItem(self.fila,1,celdaRuta)
-                
+        
+        #Para que no se repita el archivo
+        fn.listaRutaArchivo = []   
         self.inicializarControles()
 
 #########################################################################################
-    #Elimina una fila y documento
-    def eliminarFila(self):
-        filaSeleccionada = self.ui.tw_Mostrar.selectedItems()
 
-        if filaSeleccionada:
-            fila = filaSeleccionada[0].row()
-            self.ui.tw_Mostrar.removeRow(fila)
-
-            self.ui.tw_Mostrar.clearSelection()
+            
 
 #########################################################################################
     #Limpia la tabla para volver a ingresar datos       
@@ -165,14 +159,15 @@ class FrmUsuario(QtWidgets.QDialog):
         posicion = self.ui.tw_Mostrar.selectedItems ()
         return posicion 
         
-#########################################################################################        
+#########################################################################################    
+#Carga la información de los archivos a la Imterfaz gráfica    
     def cargarArchivo(self):
         posicion = self.ui.tw_Mostrar.selectedItems ()
         fila = posicion[0].row()
-        formato = self.ui.Formato.text()
         nombreArch = self.ui.tw_Mostrar.item(fila,0)
         nombreRuta = self.ui.tw_Mostrar.item(fila,1)
         
+        #Verifica si el archivo esta bloqueado sino lo abre, si esta blqueado se confirma la clave
         if (self.verificacion() == True):
             self.ui.NombreArchivo.setText(nombreArch.text())
             self.ui.DireccionCarpeta.setText(nombreRuta.text()) 
@@ -201,37 +196,68 @@ class FrmUsuario(QtWidgets.QDialog):
         #convierto la ruta a txt
         nombreRuta = self.ui.tw_Mostrar.item(fila,1).text() 
        
-        if filaSelect:        
-            self.ui.tw_Mostrar.removeRow(fila)
-            self.fila -=1
-            remove(nombreRuta)
-            self.msgProceso()
+        if filaSelect: 
+            msg = QtWidgets.QMessageBox(self)  
+            msg.setIcon(QtWidgets.QMessageBox.Icon.Question)      
+            msg.setText("¿Desea eliminar el archivo?")        
+            msg.setWindowTitle("Confirmación ")        
+            msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)  
+            boton_si = msg.button(QtWidgets.QMessageBox.StandardButton.Yes)
+            
+            a = msg.exec()
+            
+            #Realiza la eliminación del archivo    
+            if msg.clickedButton() == boton_si:       
+                self.ui.tw_Mostrar.removeRow(fila)
+                self.fila -=1
+                remove(nombreRuta)
+                self.msgProceso()
+                msg = QtWidgets.QMessageBox(self)  
+                msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)      
+                msg.setText("El archivo se ha eliminado exitosamente")        
+                msg.setWindowTitle("Archivo Creado")        
+                msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)        
+                a = msg.exec()
         else:
             msg = QtWidgets.QMessageBox(self)
-            msg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             msg.setWindowTitle("Eliminar Fila")
             msg.setText("Seleccione una fila. ")
             msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
             msg.exec()
+            
+        self.limpiarTabla()    
         self.inicializarControles()
         
 #########################################################################################        
-   
+#Modifica los archivos    
     def modificarArchivo(self):
         filaSelect = self.seleccionarArchivo()
         fila = filaSelect[0].row()
-        formato = self.ui.Formato.text()
         
+        #Confirma el cambio
         nombreArch = self.ui.NombreArchivo.text()
         ruta = self.ui.DireccionCarpeta.text()
- 
-        archivo = open(ruta,"w")
-        archivo.write(self.ui.txtEscribir.toPlainText() + "\w")
-        archivo.close()
-        self.ui.txtEscribir.clear()
+        msg = QtWidgets.QMessageBox(self)  
+        msg.setIcon(QtWidgets.QMessageBox.Icon.Question)      
+        msg.setText("¿Desea modificar el archivo?")        
+        msg.setWindowTitle("Confirmación ")        
+        msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)  
+        boton_si = msg.button(QtWidgets.QMessageBox.StandardButton.Yes)
         
+        a = msg.exec()
+        
+        #Realiza la modificación del archivo    
+        if msg.clickedButton() == boton_si:
+            archivo = open(ruta,"w")
+            archivo.write(self.ui.txtEscribir.toPlainText() + "\w")
+            archivo.close()
+            self.ui.txtEscribir.clear()
+        else:
+            msg.close()
         
         self.msgProceso()
+        self.limpiarTabla()
         self.inicializarControles()
         
         
@@ -241,11 +267,8 @@ class FrmUsuario(QtWidgets.QDialog):
         nombreArch= self.ui.NombreArchivo.text()
         ruta = self.ui.DireccionCarpeta.text()
         clave = self.ui.txt_clave.text()
-        
-        
-        
+        #Si hay un campo el blanco
         if nombreArch == "" or ruta == "" or clave == "": 
-            print("campo vacio")
             msg = QtWidgets.QMessageBox(self)  
             msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)      
             msg.setText("Un campo se encuentra vacio")        
@@ -260,26 +283,26 @@ class FrmUsuario(QtWidgets.QDialog):
             msg.setWindowTitle("Confirmación ")        
             msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)  
             boton_si = msg.button(QtWidgets.QMessageBox.StandardButton.Yes)
-            boton_no = msg.button(QtWidgets.QMessageBox.StandardButton.No)
+            
             a = msg.exec()
             
+            #Realiza la protección del archivo
             if msg.clickedButton() == boton_si:
-                archivo = open("C:\Archivos\Contrasenas.txt",'a') #no agremos direccion para que se cree donde esta el proyexto   
+                archivo = open("C:\Archivos\Contrasenas.txt",'a')  
                 archivo.write( self.ui.DireccionCarpeta.text() + ',' +self.ui.txt_clave.text( ) + "\r")  
                 archivo.close()
                 self.limpiarTabla()
                 self.inicializarControles()
             else :   
-                self.close()
+                msg.close()
   
 ##########################################################################################################
-
-       
-        
+#Verifica si el archivo esta protegido    
     def verificacion (self):
         filaSelect = self.seleccionarArchivo()
         fila = filaSelect[0].row()
         nombreRuta = self.ui.tw_Mostrar.item(fila,1).text()
+        nombreArch = self.ui.tw_Mostrar.item(fila,0).text()
         
         archivo = open("C:\Archivos\Contrasenas.txt", "r")
         linea = archivo.readlines()
@@ -289,26 +312,20 @@ class FrmUsuario(QtWidgets.QDialog):
         else:
             for i in linea:
                 rut, password = i.strip().split(',')
-                print (rut + " " + nombreRuta)
+                #Verifica si el archivo esta bloqueado, si es asi realiza la solicitud de contraseña
                 if (nombreRuta == rut ):
-                    ventana = VentanaProteger(nombreRuta)
+                    ventana = VentanaProteger(nombreRuta, nombreArch)
                     ventana.exec()
                     
                     if (ventana.desbloquear == True):
                         return True
                     else:
                         return False
-                else: 
-                    return True
-             
-        archivo.close()
-        
+            archivo.close()     
+            return True
              
         
-        
-
-    
-
+ 
 ##########################################################################################################            
    # Reporte de inventario de documentos y rutas 
     def generar_reporte(documentos):
