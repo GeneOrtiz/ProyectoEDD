@@ -74,11 +74,8 @@ class FrmUsuario(QtWidgets.QDialog):
                     self.ui.txtEscribir.clear()
                     
                     
-                else:
-                    print("ESTA ES LA RUTA :: =====",ruta)  #C:\Users\AlemanKMS\Documents\Proyecto_Grupo9
-                    
+                else:    
                     add= ruta.replace("\\", "\\\\")
-                    print (add)
 
                     archivo = open(os.path.join(add,nombreArch+formato),'a')#no agremos direccion para que se cree donde esta el proyexto   
                     archivo.write(self.ui.txtEscribir.toPlainText()+"\r")  ##lo dejmaos en limpio  
@@ -135,17 +132,19 @@ class FrmUsuario(QtWidgets.QDialog):
                 self.ui.tw_Mostrar.insertRow(self.fila)
                 celdaArchivo = QtWidgets.QTableWidgetItem(archivo.NomArchivo)
                 celdaRuta = QtWidgets.QTableWidgetItem(archivo.Ruta)
-                print(etiqueta.format(archivo.NomArchivo,archivo.Ruta))
                 self.ui.tw_Mostrar.setItem(self.fila,0,celdaArchivo)
                 self.ui.tw_Mostrar.setItem(self.fila,1,celdaRuta)
+        else:
+            msg = QtWidgets.QMessageBox(self)  
+            msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)      
+            msg.setText("Archivo no encongrado")        
+            msg.setWindowTitle("Informativo")        
+            msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)        
+            a = msg.exec()
         
         #Para que no se repita el archivo
         fn.listaRutaArchivo = []   
-        self.inicializarControles()
-
-#########################################################################################
-
-            
+        self.inicializarControles()         
 
 #########################################################################################
     #Limpia la tabla para volver a ingresar datos       
@@ -166,14 +165,14 @@ class FrmUsuario(QtWidgets.QDialog):
         posicion = self.ui.tw_Mostrar.selectedItems ()
         fila = posicion[0].row()
         nombreArch = self.ui.tw_Mostrar.item(fila,0)
-        nombreRuta = self.ui.tw_Mostrar.item(fila,1)
+        ruta = self.ui.tw_Mostrar.item(fila,1)
         
         #Verifica si el archivo esta bloqueado sino lo abre, si esta blqueado se confirma la clave
         if (self.verificacion() == True):
             self.ui.NombreArchivo.setText(nombreArch.text())
-            self.ui.DireccionCarpeta.setText(nombreRuta.text()) 
+            self.ui.DireccionCarpeta.setText(ruta.text()) 
             
-            archivo = open(nombreRuta.text(),"r")
+            archivo = open(ruta.text(),"r")
             texto = archivo.read()
             self.ui.txtEscribir.setPlainText(texto)
             archivo.close()
@@ -195,7 +194,7 @@ class FrmUsuario(QtWidgets.QDialog):
         fila = filaSelect[0].row()
         
         #convierto la ruta a txt
-        nombreRuta = self.ui.tw_Mostrar.item(fila,1).text() 
+        ruta = self.ui.tw_Mostrar.item(fila,1).text() 
        
         if filaSelect: 
             msg = QtWidgets.QMessageBox(self)  
@@ -211,7 +210,7 @@ class FrmUsuario(QtWidgets.QDialog):
             if msg.clickedButton() == boton_si:       
                 self.ui.tw_Mostrar.removeRow(fila)
                 self.fila -=1
-                remove(nombreRuta)
+                remove(ruta)
                 self.msgProceso()
                 msg = QtWidgets.QMessageBox(self)  
                 msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)      
@@ -237,7 +236,6 @@ class FrmUsuario(QtWidgets.QDialog):
         fila = filaSelect[0].row()
         
         #Confirma el cambio
-        nombreArch = self.ui.NombreArchivo.text()
         ruta = self.ui.DireccionCarpeta.text()
         msg = QtWidgets.QMessageBox(self)  
         msg.setIcon(QtWidgets.QMessageBox.Icon.Question)      
@@ -251,7 +249,7 @@ class FrmUsuario(QtWidgets.QDialog):
         #Realiza la modificación del archivo    
         if msg.clickedButton() == boton_si:
             archivo = open(ruta,"w")
-            archivo.write(self.ui.txtEscribir.toPlainText() + "\w")
+            archivo.write(self.ui.txtEscribir.toPlainText())
             archivo.close()
             self.ui.txtEscribir.clear()
         else:
@@ -302,7 +300,7 @@ class FrmUsuario(QtWidgets.QDialog):
     def verificacion (self):
         filaSelect = self.seleccionarArchivo()
         fila = filaSelect[0].row()
-        nombreRuta = self.ui.tw_Mostrar.item(fila,1).text()
+        ruta = self.ui.tw_Mostrar.item(fila,1).text()
         nombreArch = self.ui.tw_Mostrar.item(fila,0).text()
         
         archivo = open("C:\Archivos\Contrasenas.txt", "r")
@@ -314,8 +312,8 @@ class FrmUsuario(QtWidgets.QDialog):
             for i in linea:
                 rut, password = i.strip().split(',')
                 #Verifica si el archivo esta bloqueado, si es asi realiza la solicitud de contraseña
-                if (nombreRuta == rut ):
-                    ventana = VentanaProteger(nombreRuta, nombreArch)
+                if (ruta == rut ):
+                    ventana = VentanaProteger(ruta, nombreArch)
                     ventana.exec()
                     
                     if (ventana.desbloquear == True):
