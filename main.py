@@ -32,7 +32,7 @@ class FrmUsuario(QtWidgets.QDialog):
         self.ui.btn_Eliminar.clicked.connect(self.eliminarArchivo)
         self.ui.btn_Modificar.clicked.connect(self.modificarArchivo)
         self.ui.btn_Proteger.clicked.connect(self.protegerArchivo)
-        self.ui.btn_Proteger.clicked.connect(self.generar_reporte)
+        self.ui.btn_Reporte.clicked.connect(self.generar_reporte)
         
     #incializa lo nesecesario 
     def inicializarControles(self):
@@ -127,7 +127,6 @@ class FrmUsuario(QtWidgets.QDialog):
         listaArchivosEncontrados = fn.buscarArchivoFilter(nombreArch)       
                      
         if len(listaArchivosEncontrados) > 0:
-            etiqueta = "El archivo {0} se encuentra en la ruta {1}"
             for archivo in listaArchivosEncontrados:
                 self.ui.tw_Mostrar.insertRow(self.fila)
                 celdaArchivo = QtWidgets.QTableWidgetItem(archivo.NomArchivo)
@@ -284,16 +283,34 @@ class FrmUsuario(QtWidgets.QDialog):
             boton_si = msg.button(QtWidgets.QMessageBox.StandardButton.Yes)
             
             a = msg.exec()
+            archivo = open("C:\Archivos\Contrasenas.txt",'r')  
+            linea = archivo.readlines()
             
             #Realiza la protección del archivo
             if msg.clickedButton() == boton_si:
-                archivo = open("C:\Archivos\Contrasenas.txt",'a')  
-                archivo.write( self.ui.DireccionCarpeta.text() + ',' +self.ui.txt_clave.text( ) + "\r")  
-                archivo.close()
-                self.limpiarTabla()
-                self.inicializarControles()
+                for i in linea:
+                    rut, password = i.strip().split(',')
+                    #Verifica si el archivo esta bloqueado, si es asi realiza la solicitud de contraseña
+                    if (ruta == rut ):
+                        msg = QtWidgets.QMessageBox(self)  
+                        msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)      
+                        msg.setText("Error: El Archivo ya se encuentra protegido")        
+                        msg.setWindowTitle("Información")        
+                        msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)        
+                        a = msg.exec()
+                        
+                    else:
+                        archivo.close() 
+                        archivo = open("C:\Archivos\Contrasenas.txt",'a')  
+                        archivo.write( self.ui.DireccionCarpeta.text() + ',' +self.ui.txt_clave.text( ) + "\r")  
+                    
+                    
             else :   
                 msg.close()
+                
+            archivo.close()   
+            self.limpiarTabla()
+            self.inicializarControles()
   
 ##########################################################################################################
 #Verifica si el archivo esta protegido    
@@ -323,25 +340,25 @@ class FrmUsuario(QtWidgets.QDialog):
             archivo.close()     
             return True
              
-        
+            
  
 ##########################################################################################################            
    # Reporte de inventario de documentos y rutas 
-    def generar_reporte(documentos):
-        try:
-            archivo_informe = open("informe_inventario.txt", "w")
-            archivo_informe.write("Informe de inventario \n\n")
-            
-            for documento in documentos:
-                nombre, ruta = documento
-                archivo_informe.write(f"Nombre del Documento: {nombre}\n")
-                archivo_informe.write(f"Ruta del Documento: {ruta}\n\n")
-                
-            archivo_informe.close()
-            print("Informe de inventario generado exitosamente")
+    def generar_reporte(self):
+        fn.listaRutaArchivo = []
+        fn.recorrer_directorios2(os.getcwd())
+        listaArchivosEncontrados = fn.listaRutaArchivo
         
-        except Exception  as e:
-            print("Ocurrio un error al generar el informe de inventario ", str(e))
+        archivo_informe = open("C:\Archivos\informe_inventario.txt", 'w')
+        archivo_informe.write("Informe de inventario"+ "\r" + "\r")
+        
+        if len(listaArchivosEncontrados) > 0:
+            for archivo in listaArchivosEncontrados:
+                nombreArchivo, extArchivo = os.path.splitext(archivo.NomArchivo)
+                if extArchivo == '.txt':
+                    archivo_informe.write("Documento: " + nombreArchivo + "\r" + "Ruta: " + archivo.Ruta + "\r" )
+
+            
 
     
     
